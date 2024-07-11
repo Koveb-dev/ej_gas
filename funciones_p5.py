@@ -5,8 +5,6 @@ import csv
 
 precio_cilindro_5 = 12500
 precio_cilindro_15 = 25500
-
-cilindros = ("5 Kilos", "15 Kilos")
 comunas = ("Santiago", "Colina", "Pirque")
 
 pedidos = []
@@ -185,6 +183,7 @@ def buscar_pedido_rut():
     print('Buscar pedido por rut!')
     limpiar_esperar_screen()
     if len(pedidos) >= 1:
+        tiene_pedido = False
         while True:
             try:
                 rut = int(
@@ -194,23 +193,24 @@ def buscar_pedido_rut():
                     limpiar_esperar_screen()
                     for x in pedidos:
                         if x[0] == rut:
+                            tiene_pedido = True
                             print('Pedidos')
                             print(
                                 f"\t RUT:{x[0]}\t Cliente:{x[1]}\t Direccion:{x[2]}\t Comuna:{x[3]}\t Cant.5kg:{x[4]}\t Cant.15kg:{x[5]}\t Total:{x[6]}\n")
                             time.sleep(3)
                             limpiar_esperar_screen()
-                            break
-                        else:
-                            if rut not in pedidos:
-                                print('El rut no tiene ningun pedido!')
-                        limpiar_esperar_screen()
-                    break
+                            return
+
+                    if not tiene_pedido:
+                        print('RUT NO EXISTE!')
+                        break
                 else:
                     print(
                         'ERROR! debe ingrear un rut valido que es dentro del rango 1000000 a 99999999!')
                 limpiar_esperar_screen()
             except:
                 print('ERROR! debe ingresar numeros enteros!')
+
     else:
         print('NO HAY PEDIDOS REGISTRADOS!')
     limpiar_esperar_screen()
@@ -221,6 +221,7 @@ def imprimir_ruta_csv():
     limpiar_esperar_screen()
 
     if len(pedidos) >= 1:
+        pedido_comuna = False
         while True:
             try:
                 comuna = int(
@@ -246,25 +247,31 @@ def imprimir_ruta_csv():
                     "ERROR! debes ingresar un nombre que contenga al menos 3 caracteres!")
                 limpiar_esperar_screen()
 
-        try:
-            with open(f'{nombre_archivo}.csv', "x", newline="") as archivo:
-                matriz = []
-                titulos = ["RUT", "CLIENTE", "DIRECCION",
-                           "COMUNA", "CANT.5KG", "CANT.15KG", "TOTAL"]
-                escritor = csv.writer(archivo)
-                escritor.writerow(titulos)
-                for x in pedidos:
-                    if x[3] == comunas[comuna-1]:
-                        lista = [x[0], x[1], x[2], x[3], x[4], x[5], x[6]]
-                        matriz.append(lista)
-                    else:
-                        if x[3] == comunas[comuna-1] not in pedidos:
-                            print('NO HAY PEDIDOS PARA LA COMUNA!')
-                escritor.writerows(matriz)
-            print('ARCHIVO CREADO!')
-        except:
-            print('ERROR! el nombre del archivo ya existe!')
+        for i in pedidos:
+            if i[3] == comunas[comuna-1]:
+                pedido_comuna = True
 
+        if pedido_comuna:
+            try:
+                with open(f'{nombre_archivo}.csv', "x", newline="") as archivo:
+                    lista_pedido = []
+                    titulos = ["RUT", "CLIENTE", "DIRECCION",
+                               "COMUNA", "CANT.5KG", "CANT.15KG", "TOTAL"]
+                    escritor = csv.writer(archivo)
+                    escritor.writerow(titulos)
+                    for x in pedidos:
+                        if x[3] == comunas[comuna-1]:
+                            lista = [x[0], x[1], x[2], x[3], x[4], x[5], x[6]]
+                            lista_pedido.append(lista)
+                            escritor.writerows(lista_pedido)
+                print('ARCHIVO CREADO!')
+                limpiar_esperar_screen()
+            except:
+                print('ERROR! el nombre del archivo ya existe!')
+
+        if not pedido_comuna:
+            print('NO EXISTEN PEDIDOS PARA LA COMUNA!')
+            limpiar_esperar_screen()
     else:
         print('NO HAY VENTAS REGISTRADAS!')
     limpiar_esperar_screen()
